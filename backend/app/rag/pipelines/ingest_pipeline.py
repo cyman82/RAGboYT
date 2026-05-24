@@ -3,7 +3,11 @@ from typing import List, Optional, TypedDict
 from app.llm.generator import generate_suggested_questions
 from app.rag.embeddings.embedder import generate_embeddings
 from app.rag.embeddings.vector_store import FAISSVectorStore, ChunkMetadata
-from app.rag.ingestion.chunker import TranscriptChunk, create_chunks
+from app.rag.ingestion.chunker import (
+    TranscriptChunk,
+    TranscriptSegment,
+    create_chunks,
+)
 from app.rag.ingestion.youtube_loader import (
     extract_video_id,
     fetch_transcript,
@@ -31,9 +35,45 @@ def run_ingest_pipeline(
     video_id = extract_video_id(youtube_url)
     transcript = fetch_transcript(video_id)
 
+    return _build_store_from_transcript(
+        video_id,
+        transcript,
+        store,
+        chunk_size,
+        chunk_overlap,
+    )
+
+
+def run_ingest_pipeline_from_transcript(
+    video_id: str,
+    transcript: List[TranscriptSegment],
+    store: Optional[FAISSVectorStore],
+    chunk_size: int = 1000,
+    chunk_overlap: int = 200,
+) -> IngestResult:
+    """
+    Use a provided transcript, chunk it, embed, and store in FAISS.
+    """
+
     if not transcript:
         raise RuntimeError("Transcript is empty.")
 
+    return _build_store_from_transcript(
+        video_id,
+        transcript,
+        store,
+        chunk_size,
+        chunk_overlap,
+    )
+
+
+def _build_store_from_transcript(
+    video_id: str,
+    transcript: List[TranscriptSegment],
+    store: Optional[FAISSVectorStore],
+    chunk_size: int,
+    chunk_overlap: int,
+) -> IngestResult:
     chunks: List[TranscriptChunk] = create_chunks(
         transcript,
         chunk_size=chunk_size,
