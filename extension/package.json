@@ -1,0 +1,38 @@
+{
+  "name": "ytchatbot-extension",
+  "displayName": "YouTube RAG Chatbot",
+  "version": "0.1.0",
+  "description": "YouTube transcript RAG chatbot side panel",
+  "manifest": {
+    "permissions": [
+      "activeTab",
+      "tabs",
+      "sidePanel"
+    ],
+    "host_permissions": [
+      "https://www.youtube.com/*",
+      "https://youtu.be/*"
+    ]
+  },
+  "scripts": {
+    "dev": "plasmo dev",
+    "build": "plasmo build",
+    "package": "plasmo package"
+  },
+  "dependencies": {
+    "framer-motion": "^12.40.0",
+    "lucide-react": "^1.16.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.272",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.20",
+    "plasmo": "^0.90.3",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.14",
+    "typescript": "^5.6.3"
+  }
+}

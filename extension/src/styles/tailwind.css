@@ -1,0 +1,113 @@
+/* stylelint-disable-next-line at-rule-no-unknown */
+@tailwind base;
+/* stylelint-disable-next-line at-rule-no-unknown */
+@tailwind components;
+/* stylelint-disable-next-line at-rule-no-unknown */
+@tailwind utilities;
+
+:root {
+  color: #f8fafc;
+  background: #0b0f14;
+  color-scheme: dark;
+}
+
+body {
+  min-width: 360px;
+  font-family:
+    ui-sans-serif,
+    "Inter",
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  /* Dark-mode-first surface with a restrained AI product atmosphere. */
+  background:
+    radial-gradient(circle at 12% -8%, rgba(66, 198, 207, 0.2), transparent 34%),
+    radial-gradient(circle at 88% 0%, rgba(212, 165, 116, 0.12), transparent 28%),
+    linear-gradient(180deg, #101720 0%, #0b0f14 45%, #080b10 100%);
+}
+
+@layer components {
+  .eyebrow {
+    @apply text-micro font-semibold uppercase tracking-[0.16em] text-muted;
+  }
+
+  .ui-button {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition duration-200 focus:outline-none focus:ring-2 focus:ring-teal/70 focus:ring-offset-2 focus:ring-offset-haze disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .ui-button-dark {
+    @apply border border-teal/25 bg-gradient-to-r from-teal/95 to-cyan-300/90 text-slate-950 shadow-circuit hover:-translate-y-0.5 hover:shadow-glow active:translate-y-0;
+  }
+
+  .ui-button-accent {
+    @apply border border-teal/20 bg-gradient-to-r from-teal to-cyan-300 text-slate-950 shadow-circuit hover:-translate-y-0.5 hover:shadow-glow active:translate-y-0;
+  }
+
+  .ui-button-quiet {
+    @apply border border-line bg-white/5 text-slate-200 hover:-translate-y-0.5 hover:border-teal/40 hover:bg-white/10 active:translate-y-0;
+  }
+
+  .ui-chip {
+    @apply rounded-full border border-line bg-white/[0.06] px-3 py-1.5 text-[11px] font-medium leading-4 text-slate-200 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-teal/45 hover:bg-tealSoft hover:text-white focus:outline-none focus:ring-2 focus:ring-teal/70 focus:ring-offset-2 focus:ring-offset-haze disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .glass-card {
+    @apply rounded-2xl border border-line bg-panel bg-opacity-80 shadow-soft backdrop-blur-xl;
+  }
+}
+
+@layer utilities {
+  /* Used by answer/evidence panels for a quiet entrance animation. */
+  .animate-soft-in {
+    animation: soft-in 220ms ease-out both;
+  }
+
+  .animation-delay-100 {
+    animation-delay: 100ms;
+  }
+
+  /* Lightweight skeleton shimmer, no external animation library required. */
+  .animate-shimmer {
+    background-image: linear-gradient(
+      90deg,
+      rgba(30, 41, 59, 0.65),
+      rgba(66, 198, 207, 0.18),
+      rgba(30, 41, 59, 0.65)
+    );
+    background-size: 220% 100%;
+    animation: shimmer 1.2s ease-in-out infinite;
+  }
+}
+
+@keyframes soft-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -120% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 1ms !important;
+  }
+}
