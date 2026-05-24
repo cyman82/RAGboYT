@@ -67,6 +67,7 @@ dist/
 # Plasmo specific
 .cache/
 .next/
+.plasmo/
 
 # Chrome extension
 chrome-mv3-dev/
