@@ -6,11 +6,7 @@ import type {
   ExtensionMessage,
   SeekMessage
 } from "../lib/messages"
-import {
-  fetchTranscriptSegments,
-  getVideoIdFromUrl,
-  getVideoTitle
-} from "../lib/youtube"
+import { getVideoIdFromUrl, getVideoTitle } from "../lib/youtube"
 
 export const config: PlasmoContentScript = {
   matches: ["https://www.youtube.com/*", "https://youtu.be/*"],
@@ -35,49 +31,6 @@ chrome.runtime.onMessage.addListener(
         }
       }
       sendResponse(response)
-      return true
-    }
-
-    if (message.type === "GET_TRANSCRIPT") {
-      const videoId = getVideoIdFromUrl(window.location.href)
-      if (!videoId) {
-        sendResponse({
-          type: "TRANSCRIPT",
-          payload: {
-            url: window.location.href,
-            videoId: null,
-            title: getVideoTitle(),
-            transcript: [],
-            error: "Unable to determine video ID."
-          }
-        })
-        return true
-      }
-
-      fetchTranscriptSegments(videoId)
-        .then((transcript) => {
-          sendResponse({
-            type: "TRANSCRIPT",
-            payload: {
-              url: window.location.href,
-              videoId,
-              title: getVideoTitle(),
-              transcript
-            }
-          })
-        })
-        .catch((error) => {
-          sendResponse({
-            type: "TRANSCRIPT",
-            payload: {
-              url: window.location.href,
-              videoId,
-              title: getVideoTitle(),
-              transcript: [],
-              error: error instanceof Error ? error.message : "Transcript fetch failed"
-            }
-          })
-        })
       return true
     }
 

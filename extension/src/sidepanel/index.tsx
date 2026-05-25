@@ -5,7 +5,7 @@ import { Captions, Loader2 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 
 import type { ChatResponse, VideoContext } from "../lib/types"
-import { ingestTranscriptText, submitChat } from "../lib/api"
+import { ingestTranscript, submitChat } from "../lib/api"
 import type {
   ContentRequestMessage,
   ContentResponseMessage,
@@ -95,43 +95,10 @@ const SidePanel = () => {
     setIsBackendOffline(false)
 
     try {
-      const [tab] = await chrome.tabs.query({
-        active: true,
-        currentWindow: true
-      })
-
-      if (!tab?.id) {
-        setError("No active YouTube tab detected.")
-        setIsBackendOffline(false)
-        return
-      }
-
-      const transcriptResponse = (await chrome.tabs.sendMessage(tab.id, {
-        type: "GET_TRANSCRIPT"
-      })) as ContentResponseMessage
-
-      if (transcriptResponse.payload.error) {
-        setError(`Transcript error: ${transcriptResponse.payload.error}`)
-        setIsBackendOffline(false)
-        return
-      }
-
-      if (!transcriptResponse.payload.videoId) {
-        setError("Unable to determine video ID.")
-        setIsBackendOffline(false)
-        return
-      }
-
-      const transcript = transcriptResponse.payload.transcript || []
-      if (transcript.length === 0) {
-        setError("Transcript is empty or unavailable.")
-        setIsBackendOffline(false)
-        return
-      }
-
-      const response = await ingestTranscriptText({
-        video_id: transcriptResponse.payload.videoId,
-        transcript,
+      const response = await ingestTranscript({
+        video_id: video.videoId || undefined,
+        video_url: video.url || undefined,
+        video_title: video.title || undefined,
         chunk_size: DEFAULT_CHUNK_SIZE,
         chunk_overlap: DEFAULT_CHUNK_OVERLAP
       })

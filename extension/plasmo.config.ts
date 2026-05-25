@@ -1,6 +1,4 @@
-import type { PlasmoConfig } from "plasmo"
-
-const config: PlasmoConfig = {
+const config = {
   manifest: {
     name: "YouTube RAG Chatbot",
     version: "0.1.0",
