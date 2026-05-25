@@ -102,7 +102,7 @@ const SidePanel = () => {
 
       if (!tab?.id) {
         setError("No active YouTube tab detected.")
-        setIsBackendOffline(true)
+        setIsBackendOffline(false)
         return
       }
 
@@ -111,16 +111,22 @@ const SidePanel = () => {
       })) as ContentResponseMessage
 
       if (transcriptResponse.payload.error) {
-        throw new Error(transcriptResponse.payload.error)
+        setError(`Transcript error: ${transcriptResponse.payload.error}`)
+        setIsBackendOffline(false)
+        return
       }
 
       if (!transcriptResponse.payload.videoId) {
-        throw new Error("Unable to determine video ID.")
+        setError("Unable to determine video ID.")
+        setIsBackendOffline(false)
+        return
       }
 
       const transcript = transcriptResponse.payload.transcript || []
       if (transcript.length === 0) {
-        throw new Error("Transcript is empty or unavailable.")
+        setError("Transcript is empty or unavailable.")
+        setIsBackendOffline(false)
+        return
       }
 
       const response = await ingestTranscriptText({
@@ -132,8 +138,14 @@ const SidePanel = () => {
       setContextReady(true)
       setSuggestedQuestions(response.suggested_questions || [])
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Ingest failed")
-      setIsBackendOffline(true)
+      const message = err instanceof Error ? err.message : "Ingest failed"
+      setError(message)
+      if (
+        message.toLowerCase().includes("failed to fetch") ||
+        message.toLowerCase().includes("request failed")
+      ) {
+        setIsBackendOffline(true)
+      }
     } finally {
       setIsIngesting(false)
     }
