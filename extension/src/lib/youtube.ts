@@ -34,7 +34,3 @@ export function getVideoTitle(): string | null {
 
   return document.title || null
 }
-
-  textarea.innerHTML = value
-  return textarea.value
-}
