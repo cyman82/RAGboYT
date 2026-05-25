@@ -19,39 +19,25 @@ class IngestResponse(BaseModel):
     success: bool
     video_id: str
     chunks_created: int
-    suggested_questions: list[str] = []
+    suggested_questions: list[str] = Field(default_factory=list)
 
 
-class TranscriptSegmentModel(BaseModel):
-    text: str = Field(..., min_length=1)
-    start: float = Field(..., ge=0)
-    duration: float = Field(..., ge=0)
-
-
-    video_url: str | None,
-    video_id: str | None,
-) -> str:
-    if video_url:
-        return video_url
-
-    if video_id:
-        return f"https://www.youtube.com/watch?v={video_id}"
-
-    raise ValueError("video_url or video_id is required.")
-
-
-@router.post("/ingest_text", response_model=IngestResponse)
-async def ingest_transcript_text(
-    request: IngestTranscriptRequest,
+@router.post("/ingest", response_model=IngestResponse)
+async def ingest_transcript(
+    request: IngestRequest,
     http_request: Request,
 ) -> IngestResponse:
     try:
+        youtube_url = _resolve_youtube_url(
+            request.video_url,
+            request.video_id,
+        )
+
         async with http_request.app.state.store_lock:
             store = http_request.app.state.vector_store
             result = await run_in_threadpool(
-                run_ingest_pipeline_from_transcript,
-                request.video_id,
-                [segment.model_dump() for segment in request.transcript],
+                run_ingest_pipeline,
+                youtube_url,
                 store,
                 request.chunk_size,
                 request.chunk_overlap,
@@ -59,10 +45,10 @@ async def ingest_transcript_text(
             http_request.app.state.vector_store = result["store"]
 
         return IngestResponse(
+            success=True,
             video_id=result["video_id"],
-            segments=result["segments"],
-            chunks=result["chunks"],
-            suggested_questions=result["suggested_questions"],
+            chunks_created=result["chunks"],
+            suggested_questions=result.get("suggested_questions", []),
         )
     except ValueError as error:
         raise HTTPException(
@@ -74,3 +60,16 @@ async def ingest_transcript_text(
             status_code=502,
             detail=str(error),
         ) from error
+
+
+def _resolve_youtube_url(
+    video_url: str | None,
+    video_id: str | None,
+) -> str:
+    if video_url:
+        return video_url
+
+    if video_id:
+        return f"https://www.youtube.com/watch?v={video_id}"
+
+    raise ValueError("video_url or video_id is required.")
